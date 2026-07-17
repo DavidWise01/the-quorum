@@ -1,0 +1,9 @@
+ROOT0-DLW-CHAIN-v1
+index : 1428
+slug  : the-quorum
+seal  : 119aad9bd8709f6e20226c5dc19de8aa1300e8c1196a0f030fc8b3e31f7b0f25
+prev  : 81cb71d3f589e4b8b16f0cd183dcb51087f76a37949449801d6f224027ee70c0
+link  : adb67df17f0c9953e58006acdc033c55e339834d24577bf3de68396b541ebb59
+head  : 5cbf511193a0782e59acd13458cd21f3193bebee46cb3a76c2e467e873ab6441
+
+— the tether: link = sha256(index|slug|seal|prev). the chain head commits to the whole corpus.
