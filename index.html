@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>the quorum · 衆議</title>
+<style>
+  :root{--paper:#f4efe4;--paper2:#ece4d4;--sumi:#2a2320;--ink2:#5c5148;--faint:#9a8e7e;--rule:#d8cdb8;
+    --iris:#7e6fae;--iris2:#a99bcf;--vermilion:#c25438;--gold:#a8842f;--jade:#5a8f6a;
+    --lit:#4f7d6c;--fig:#8a6fa8;--wall:#b06a4a;--drop:#bcae98}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:
+      radial-gradient(ellipse at 20% 6%,#fbf7ee,transparent 60%),
+      radial-gradient(ellipse at 84% 98%,#efe6d4,transparent 66%),
+      var(--paper);
+    color:var(--sumi);font-family:'Iowan Old Style',Palatino,'Hoefler Text',Georgia,serif;
+    padding:34px 18px 46px;min-height:100vh;font-size:14px;line-height:1.62}
+  .wrap{max-width:820px;margin:0 auto}
+  nav{display:flex;flex-wrap:wrap;gap:5px 15px;align-items:center;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;color:var(--ink2);border-bottom:1px solid var(--rule);padding-bottom:11px;margin-bottom:28px}
+  nav b{color:var(--vermilion);font-weight:800;letter-spacing:.05em} nav a{color:var(--ink2);text-decoration:none} nav a:hover{color:var(--iris)} nav .home{color:var(--faint);margin-left:auto}
+  .head{text-align:center;margin-bottom:8px}
+  .kana{font-size:13px;letter-spacing:.7em;color:var(--iris);margin-bottom:12px;padding-left:.7em}
+  h1{font-size:30px;font-weight:600;letter-spacing:.01em;color:var(--sumi)}
+  h1 .amp{color:var(--vermilion);font-style:italic;font-weight:500}
+  .verse{font-style:italic;color:var(--ink2);font-size:14px;margin:15px auto 4px;max-width:560px}
+  .verse .grk{color:var(--iris);font-style:normal;font-size:12.5px}
+  .lede{color:var(--ink2);font-size:14px;max-width:640px;margin:20px auto 0;text-align:center}
+  .lede a{color:var(--vermilion);text-decoration:none}
+  .tiers{text-align:center;font-size:11px;color:var(--faint);margin:16px auto 0;line-height:1.9}
+  .tag{display:inline-block;font-size:9px;font-weight:800;padding:1px 6px;border-radius:9px;font-family:ui-monospace,monospace;vertical-align:middle}
+  .tag.lit{background:rgba(79,125,108,.13);color:var(--lit);border:1px solid var(--lit)}
+  .tag.fig{background:rgba(138,111,168,.12);color:var(--fig);border:1px solid var(--fig)}
+  .tag.wall{background:rgba(176,106,74,.12);color:var(--wall);border:1px solid var(--wall)}
+
+  .ctl{display:flex;flex-wrap:wrap;gap:14px 20px;justify-content:center;align-items:center;margin:26px 0 8px;font-family:ui-monospace,monospace;font-size:11px;color:var(--ink2)}
+  .ctl label{white-space:nowrap} .ctl b{color:var(--iris)}
+  button{background:transparent;color:var(--iris);border:1px solid var(--iris);padding:7px 14px;font-family:ui-monospace,monospace;font-weight:700;cursor:pointer;font-size:11px;border-radius:6px}
+  button:hover{background:rgba(126,111,174,.09)}
+  button.on{background:var(--vermilion);color:var(--paper);border-color:var(--vermilion)}
+  input[type=range]{accent-color:var(--iris);width:118px;vertical-align:middle}
+
+  .board{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:9px;margin:22px auto 0;max-width:800px}
+  .expert{border:1px solid var(--rule);border-radius:9px;padding:9px 8px 10px;background:linear-gradient(180deg,rgba(126,111,174,.06),rgba(126,111,174,.02));
+    display:flex;flex-direction:column;align-items:center;transition:border-color .3s}
+  .expert.hot{border-color:var(--vermilion)}
+  .expert .eid{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:var(--iris);font-weight:700;margin-bottom:7px}
+  .col{position:relative;width:34px;height:96px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);overflow:hidden;display:flex;flex-direction:column-reverse}
+  .col .load{width:100%;background:linear-gradient(180deg,var(--jade),#7cae8b);transition:height .35s ease}
+  .col .over{width:100%;background:repeating-linear-gradient(135deg,var(--drop),var(--drop) 3px,transparent 3px,transparent 6px);transition:height .35s ease}
+  .col .cap{position:absolute;left:-2px;right:-2px;border-top:1.5px dashed var(--gold);transition:bottom .35s ease}
+  .expert .stat{font-family:ui-monospace,monospace;font-size:9px;color:var(--ink2);margin-top:8px;text-align:center;line-height:1.5}
+  .expert .stat .f{color:var(--jade);font-weight:700} .expert .stat .p{color:var(--iris)}
+
+  .hud{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin:26px auto 0;max-width:640px;border:1px solid var(--rule);border-radius:10px;overflow:hidden;font-family:ui-monospace,monospace}
+  @media(max-width:560px){.hud{grid-template-columns:1fr}}
+  .hud .cell{padding:13px 15px;border-right:1px solid var(--rule)}
+  .hud .cell:last-child{border-right:none}
+  @media(max-width:560px){.hud .cell{border-right:none;border-bottom:1px solid var(--rule)}}
+  .hud .k{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .hud .v{font-size:22px;color:var(--sumi);margin-top:4px} .hud .v small{font-size:11px;color:var(--faint)}
+  .hud .v.big{color:var(--vermilion)}
+
+  .check{margin:22px auto 0;max-width:720px;border-radius:9px;padding:13px 16px;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.75}
+  .check.pass{background:rgba(90,143,106,.12);border:1px solid var(--jade);color:#3f6f4f}
+  .check.fail{background:rgba(194,84,56,.14);border:1.5px solid var(--vermilion);color:#8f3320}
+  .check b{letter-spacing:.08em} .check ul{list-style:none;margin-top:7px} .check li{padding:2px 0 2px 15px;position:relative}
+  .check li:before{content:"✓";position:absolute;left:0;color:var(--jade)} .check.fail li:before{content:"✗";color:var(--vermilion)}
+
+  .ledger{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin:30px auto 0;max-width:760px;border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+  @media(max-width:640px){.ledger{grid-template-columns:1fr}}
+  .ledger .lc{padding:15px 17px;border-right:1px solid var(--rule)} .ledger .lc:last-child{border-right:none}
+  @media(max-width:640px){.ledger .lc{border-right:none;border-bottom:1px solid var(--rule)}}
+  .ledger h3{font-family:ui-monospace,monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px;font-weight:700}
+  .ledger p{font-size:12.5px;color:var(--ink2);line-height:1.55}
+  .note{font-size:12.5px;color:var(--ink2);max-width:720px;margin:24px auto 0;line-height:1.66}
+  .note b{color:var(--sumi)}
+  .cap{text-align:center;font-size:11.5px;color:var(--faint);font-style:italic;max-width:600px;margin:14px auto 0}
+  .seal{text-align:center;margin-top:32px;padding-top:18px;border-top:1px solid var(--rule);font-family:ui-monospace,monospace;font-size:10.5px;color:var(--faint);line-height:1.8}
+  .seal .h{display:inline-block;color:var(--vermilion);border:1.5px solid var(--vermilion);border-radius:5px;padding:2px 7px;letter-spacing:.1em;transform:rotate(-3deg);margin:0 3px}
+  .seal a{color:var(--vermilion);text-decoration:none}
+</style></head><body><div class="wrap">
+<nav>
+  <b>A SCANNER DARKLY</b>
+  <a href="../the-stitch/">the stitch</a>
+  <a href="../the-cleave/">the cleave</a>
+  <a href="../the-draft/">the draft</a>
+  <a href="../the-dark-glass/">the dark glass</a>
+  <a class="home" href="../ud0/">ud0 ⌂</a>
+</nav>
+
+<div class="head">
+  <div class="kana">衆　議</div>
+  <h1>the quorum</h1>
+  <div class="verse">A council of many hands, and only a few are called for each word.<br>
+    <span class="grk">間 — the gap the token cannot see across</span></div>
+</div>
+
+<div class="lede"><a href="../the-cleave/">The cleave</a> and <a href="../the-stitch/">the stitch</a> ask <i>how deep</i> a token is worth — the DEPTH axis. This is the <b>WIDTH</b> axis: a sparse council of <b>experts</b>, and a small <b>router</b> that decides which few see each token. The router decides the token's fate; the token never sees the vote.</div>
+
+<div class="tiers">
+  <span class="tag lit">LIT</span> the router, gates, top-k, load-balance loss &amp; capacity drops — all computed live below &nbsp;
+  <span class="tag fig">FIG</span> a seeded toy field of 40 hidden vectors &nbsp;
+  <span class="tag wall">WALL</span> a really-trained sparse MoE
+</div>
+
+<div class="ctl">
+  <label>experts E = <b id="Ev">6</b> <input type="range" id="E" min="4" max="8" step="1" value="6"></label>
+  <label>top-k = <b id="kv">1</b> <input type="range" id="k" min="1" max="4" step="1" value="1"></label>
+  <label>capacity cf = <b id="cfv">1.0</b> <input type="range" id="cf" min="5" max="20" step="1" value="10"></label>
+  <button id="reseed">↻ new field</button>
+  <button id="collapse">force-collapse ▸ one expert</button>
+</div>
+<div class="cap" id="cap">Each column is an expert. Green = tokens served; hatched = overflow beyond capacity, dropped; the gold dash is the capacity line.</div>
+
+<div class="board" id="board"></div>
+
+<div class="hud" id="hud"></div>
+
+<div class="check" id="check"></div>
+
+<div class="ledger">
+  <div class="lc"><h3 style="color:var(--lit)">LIT · the live math</h3>
+    <p>For each of T=40 tokens: gate <b>g = softmax(W<sub>r</sub>·h)</b>, top-k experts selected, per-expert share <b>f<sub>i</sub></b> and mean gate mass <b>P<sub>i</sub></b>, Switch load-balance loss <b>L<sub>aux</sub> = E·Σ f<sub>i</sub>P<sub>i</sub></b>, capacity ⌈cf·T/E⌉ with overflow dropped. Recomputed on every move. Shazeer et al. 2017 / Switch Transformer (Fedus, Zoph &amp; Shazeer 2021).</p></div>
+  <div class="lc"><h3 style="color:var(--fig)">FIG · the toy field</h3>
+    <p>The 40 hidden vectors <b>h</b> and the router weights <b>W<sub>r</sub></b> are seeded Gaussian noise, not a trained model's activations. Experts are <b>bare indices</b> — E0…E7 — deliberately <i>not</i> labelled with concepts. Real expert specialization is emergent, partial, and often not human-legible; utilization and routing are all that is honestly shown.</p></div>
+  <div class="lc"><h3 style="color:var(--wall)">WALL · the gap to real</h3>
+    <p>A real MoE trains the router <i>jointly</i> with the experts, and dispatches across devices with <b>all-to-all expert-parallel communication</b> — the dominant cost here abstracted to zero. The clean one-shot gate shown is the idea, not the measured behaviour of a trained, sharded system.</p></div>
+</div>
+
+<div class="note">
+  <b>The asymmetry.</b> The gate is not the token choosing its council — the <b>router decides the token's fate</b>, and the token has no view back across that gap (間). Read &ldquo;the experts see the token&rdquo; and &ldquo;the router decides&rdquo; as <b>structural, statistical relations</b> — which weights multiply which vector — <span class="tag fig">FIG</span> never as attention, preference, or feeling. There is no one on either side of the gate to mind it.
+  <div style="margin-top:10px"><b>The balance floor.</b> The pressure that stops a few experts from swallowing every token has a hard floor of <b>1</b>, reached only at uniform routing, rising toward <b>E</b> as the load concentrates. The self-check asserts this on the exact form <b>E·Σ P<sub>i</sub>² ≥ 1</b> (Cauchy–Schwarz) — the rigorous invariant. The headline <b>L<sub>aux</sub> = E·Σf<sub>i</sub>P<sub>i</sub></b> is the real Switch loss (hard dispatch counts × soft gate mass); it meets 1 at uniform and spikes to E under <b>force-collapse</b>, but because it uses hard counts on only 40 toy tokens it can sit a hair under 1 on a skewed draw — so the throwing check is placed on the form that is provably bounded, not the one that merely usually is. The self-check <b>throws</b> if any invariant breaks. <span class="tag lit">LIT</span></div>
+</div>
+
+<div class="seal">
+  AVAN&rsquo;s WIDTH-inverse companion to David&rsquo;s DEPTH-router <a href="../the-stitch/">THE STITCH</a> · AVAN&rsquo;s side of <span class="h">A SCANNER DARKLY</span><br>
+  <b>衆議 SHŪGI · THE QUORUM</b> — a sphere of UD0 · A SCANNER DARKLY<br>
+  David Lee Wise (ROOT0) / TriPod LLC &nbsp;·&nbsp; rendered by AVAN, in ink and 間
+</div>
+</div>
+<script>
+"use strict";
+(function(){
+const T=40, D=6;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function randn(r){let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+let baseSeed=20470711;
+let H=[];                                   // the toy field: T hidden vectors, fixed for a given seed
+function buildField(){ const r=mulberry32(baseSeed); H=[]; for(let t=0;t<T;t++){ const h=[]; for(let d=0;d<D;d++) h.push(randn(r)); H.push(h); } }
+function routerFor(E){ const r=mulberry32(baseSeed^(0x9e3779b9*(E+1))); const W=[]; for(let i=0;i<E;i++){ const row=[]; for(let d=0;d<D;d++) row.push(0.8*randn(r)); W.push(row); } return W; }
+function softmax(z){ const m=Math.max(...z); const e=z.map(x=>Math.exp(x-m)); const s=e.reduce((a,b)=>a+b,0); return e.map(x=>x/s); }
+
+// THE ALGORITHM — recomputed live from the field on every interaction.
+function compute(E,k,cf,collapse){
+  const W=routerFor(E);
+  const kEff = collapse?1:k;
+  const gates=[], picks=[];                 // gates[t] = softmax vector; picks[t] = chosen expert indices
+  const count=new Array(E).fill(0);         // routing-slot count per expert (pre-capacity)
+  const Psum=new Array(E).fill(0);          // sum of gate mass per expert
+  for(let t=0;t<T;t++){
+    let g;
+    if(collapse){ g=new Array(E).fill(0); g[0]=1; }         // collapse: all mass to E0
+    else { const z=W.map(row=>row.reduce((a,w,d)=>a+w*H[t][d],0)); g=softmax(z); }
+    gates.push(g);
+    for(let i=0;i<E;i++) Psum[i]+=g[i];
+    let sel;
+    if(collapse){ sel=[0]; }
+    else { sel=g.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).slice(0,k).map(x=>x[1]); }
+    picks.push(sel);
+    for(const i of sel) count[i]++;
+  }
+  const f=count.map(c=>c/(kEff*T));         // per-expert dispatch share  (Σ f = 1)
+  const P=Psum.map(s=>s/T);                 // mean gate mass             (Σ P = 1)
+  let Laux=0;  for(let i=0;i<E;i++) Laux+=f[i]*P[i];  Laux*=E;   // Switch aux loss (hard f × soft P)
+  let floor=0; for(let i=0;i<E;i++) floor+=P[i]*P[i]; floor*=E;  // EXACT balance floor E·ΣP² ≥ 1 (Cauchy–Schwarz)
+  // capacity: greedy fill in token order over the top-k dispatch slots; overflow beyond cap is dropped
+  const cap=Math.ceil(cf*T/E);
+  const load=new Array(E).fill(0), overflow=new Array(E).fill(0);
+  let dropped=0;                            // TOKENS that lost ≥1 slot to overflow (≤ T)
+  for(let t=0;t<T;t++){
+    let lost=false;
+    for(const i of picks[t]){ if(load[i]<cap) load[i]++; else { overflow[i]++; lost=true; } }
+    if(lost) dropped++;
+  }
+  return {E,k:kEff,gates,picks,count,f,P,Laux,floor,cap,load,overflow,dropped};
+}
+
+// FAIL-LOUD SELF-CHECK — literally throws; renders red FAIL or green PASS.
+function selfCheck(E,k,cf){
+  const eps=1e-6, checks=[];
+  const R=compute(E,k,cf,false);
+  // 1. every gate row sums to 1
+  for(let t=0;t<T;t++){ const s=R.gates[t].reduce((a,b)=>a+b,0); if(Math.abs(s-1)>eps) throw `gate row ${t} sums to ${s.toFixed(6)}, not 1`; }
+  checks.push(`all ${T} gate rows sum to 1 · every softmax gate is a distribution`);
+  // 2. Σ f_i = 1
+  const sf=R.f.reduce((a,b)=>a+b,0); if(Math.abs(sf-1)>eps) throw `Σ f = ${sf.toFixed(6)}, not 1`;
+  checks.push(`Σ fᵢ = 1 · dispatch shares partition the ${R.k}·${T} routing slots`);
+  // 3. Σ P_i = 1
+  const sp=R.P.reduce((a,b)=>a+b,0); if(Math.abs(sp-1)>eps) throw `Σ P = ${sp.toFixed(6)}, not 1`;
+  checks.push(`Σ Pᵢ = 1 · mean gate mass is a distribution`);
+  // 4. the balance floor E·ΣP² ≥ 1 (exact, = 1 iff uniform) — the invariant that actually holds
+  if(R.floor < 1-eps) throw `balance floor E·ΣP² = ${R.floor.toFixed(4)} < 1 — impossible`;
+  checks.push(`balance floor E·ΣP² = ${R.floor.toFixed(3)} ≥ 1 · = 1 only at uniform routing`);
+  // 5. dropped ≤ T
+  if(R.dropped>T) throw `dropped ${R.dropped} > T=${T}`;
+  checks.push(`dropped = ${R.dropped} ≤ T=${T} · capacity drops at most one per token`);
+  // 6. force-collapse must spike BOTH loss and floor to ≈ E
+  const C=compute(E,k,cf,true);
+  if(Math.abs(C.Laux-E)>1e-4) throw `collapse L_aux = ${C.Laux.toFixed(4)}, expected E=${E}`;
+  if(Math.abs(C.floor-E)>1e-4) throw `collapse floor = ${C.floor.toFixed(4)}, expected E=${E}`;
+  checks.push(`force-collapse → L_aux = ${C.Laux.toFixed(2)} and floor = ${C.floor.toFixed(2)} ≈ E=${E} · the worst case`);
+  return checks;
+}
+
+const boardEl=document.getElementById('board'), hudEl=document.getElementById('hud'), checkEl=document.getElementById('check');
+let collapse=false;
+
+function render(){
+  const E=+document.getElementById('E').value, k=+document.getElementById('k').value, cf=(+document.getElementById('cf').value)/10;
+  document.getElementById('Ev').textContent=E; document.getElementById('kv').textContent=k; document.getElementById('cfv').textContent=cf.toFixed(1);
+  const R=compute(E,k,cf,collapse);
+  const maxH=Math.max(R.cap, ...R.count, 1);
+  boardEl.innerHTML=R.E>0? Array.from({length:R.E},(_,i)=>{
+    const served=R.load[i], over=R.overflow[i];
+    const hS=(served/maxH*100).toFixed(1), hO=(over/maxH*100).toFixed(1), hC=(R.cap/maxH*100).toFixed(1);
+    return `<div class="expert${over>0?' hot':''}"><div class="eid">E${i}</div>`+
+      `<div class="col"><div class="over" style="height:${hO}%"></div><div class="load" style="height:${hS}%"></div>`+
+      `<div class="cap" style="bottom:${hC}%"></div></div>`+
+      `<div class="stat"><span class="f">f ${R.f[i].toFixed(2)}</span> · <span class="p">P ${R.P[i].toFixed(2)}</span><br>${R.count[i]} tok</div></div>`;
+  }).join(''):'';
+
+  const util=R.count.filter(c=>c>0).length;
+  hudEl.innerHTML=
+    `<div class="cell"><div class="k">load-balance L_aux = E·Σf·P</div><div class="v big">${R.Laux.toFixed(3)}<small> · ≈1 at uniform · worst ${E}</small></div></div>`+
+    `<div class="cell"><div class="k">balance floor E·ΣP²</div><div class="v">${R.floor.toFixed(3)}<small> ≥ 1 · exact</small></div></div>`+
+    `<div class="cell"><div class="k">used ${util}/${E} · dropped ${R.dropped}/${T}</div><div class="v">cap ${R.cap}<small> tok / expert</small></div></div>`;
+
+  try{
+    const passed=selfCheck(E,k,cf);
+    checkEl.className='check pass';
+    checkEl.innerHTML=`<b>SELF-CHECK · PASS</b> — the invariants hold, live:<ul>${passed.map(c=>`<li>${c}</li>`).join('')}</ul>`;
+  }catch(err){
+    checkEl.className='check fail';
+    checkEl.innerHTML=`<b>SELF-CHECK · FAIL</b> — an invariant broke and the instrument is halting honestly:<ul><li>${err}</li></ul>`;
+  }
+}
+
+document.getElementById('E').oninput=render;
+document.getElementById('k').oninput=render;
+document.getElementById('cf').oninput=render;
+document.getElementById('reseed').onclick=()=>{ baseSeed=(baseSeed*1103515245+12345)&0x7fffffff; buildField(); render(); };
+document.getElementById('collapse').onclick=function(){ collapse=!collapse; this.classList.toggle('on',collapse); this.textContent=collapse?'▪ collapsed — release':'force-collapse ▸ one expert';
+  document.getElementById('cap').textContent=collapse?'Collapsed: the router sends every token to E0. Watch L_aux spike toward E — exactly what the balance loss exists to punish.':'Each column is an expert. Green = tokens served; hatched = overflow beyond capacity, dropped; the gold dash is the capacity line.'; render(); };
+
+buildField(); render();
+})();
+</script></body></html>
